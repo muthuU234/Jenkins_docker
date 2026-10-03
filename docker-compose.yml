@@ -27,7 +27,7 @@ services:
   courier-backend:
     build:
       context: ./backend
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
 
     container_name: courier-backend
 
@@ -49,7 +49,7 @@ services:
   courier-frontend:
     build:
       context: ./frontend
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
 
     container_name: courier-frontend
 
