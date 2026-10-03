@@ -1,0 +1,71 @@
+services:
+
+  courier-mysql:
+    image: mysql:8.0
+    container_name: courier-mysql
+
+    environment:
+      MYSQL_DATABASE: EXPORT
+      MYSQL_ROOT_PASSWORD: root
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      # Persistent MySQL data
+      - courier_mysql_data:/var/lib/mysql
+
+      # Import existing Courier database
+      # during first MySQL initialization
+      - ./docker_db/Courier.sql:/docker-entrypoint-initdb.d/Courier.sql
+
+    networks:
+      - courier-network
+
+
+
+  courier-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: courier-backend
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      # Docker service name is used instead of localhost
+      SPRING_DATASOURCE_URL: jdbc:mysql://courier-mysql:3306/EXPORT
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+    depends_on:
+      - courier-mysql
+
+    networks:
+      - courier-network
+
+  courier-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: courier-frontend
+
+    ports:
+      - "3000:80"
+
+    depends_on:
+      - courier-backend
+
+    networks:
+      - courier-network
+
+
+networks:
+  courier-network:
+
+
+volumes:
+  courier_mysql_data:
